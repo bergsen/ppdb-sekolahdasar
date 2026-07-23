@@ -1,0 +1,124 @@
+CREATE DATABASE IF NOT EXISTS ppsd;
+USE ppsd;
+
+-- 1. TABEL USERS (Untuk Semua Role)
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100),
+    username VARCHAR(50) UNIQUE,
+    no_hp VARCHAR(20),
+    email VARCHAR(100),
+    password VARCHAR(255),
+    role ENUM('admin','panitia','pendaftar'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. TABEL TAHUN AJARAN
+CREATE TABLE tahun_ajaran (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tahun VARCHAR(20) UNIQUE NOT NULL,
+    kuota INT DEFAULT 0,
+    status ENUM('aktif','nonaktif') DEFAULT 'nonaktif',
+    tanggal_buka DATE,
+    tanggal_tutup DATE
+);
+
+-- 3. TABEL CALON SISWA (Data Inti)
+CREATE TABLE calon_siswa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    tahun_ajaran_id INT NOT NULL,
+    nomor_pendaftaran VARCHAR(20) UNIQUE,
+    
+    -- DATA SISWA
+    nama_siswa VARCHAR(100) NOT NULL,
+    jenis_kelamin ENUM('L','P'),
+    tempat_lahir VARCHAR(50),
+    tanggal_lahir DATE,
+    agama ENUM('Islam','Kristen Protestan','Katolik','Hindu','Buddha','Khonghucu'),
+    kewarganegaraan ENUM('WNI','WNA'),
+    anak_ke INT,
+    jumlah_saudara INT,
+    golongan_darah VARCHAR(3),
+    riwayat_penyakit TEXT,
+    alamat TEXT,
+
+    -- DATA AYAH
+    nama_ayah VARCHAR(100),
+    pekerjaan_ayah VARCHAR(50),
+    penghasilan_ayah VARCHAR(50),
+    hp_ayah VARCHAR(20),
+
+    -- DATA IBU
+    nama_ibu VARCHAR(100),
+    pekerjaan_ibu VARCHAR(50),
+    penghasilan_ibu VARCHAR(50),
+    hp_ibu VARCHAR(20),
+
+    -- DATA WALI (OPSIONAL)
+    nama_wali VARCHAR(100),
+    hubungan_wali VARCHAR(50),
+    hp_wali VARCHAR(20),
+
+    -- DATA ASAL SEKOLAH
+    nama_tk_asal VARCHAR(100),
+
+    -- DATA PINDAHAN (OPSIONAL)
+    pindahan_dari VARCHAR(100),
+    kelas_pindahan VARCHAR(50),
+
+    -- Status Penerimaan
+    status_terima ENUM('pending','diterima','tidak_diterima') DEFAULT 'pending',
+    catatan_panitia TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (tahun_ajaran_id) REFERENCES tahun_ajaran(id)
+);
+
+-- 4. TABEL BERKAS
+CREATE TABLE berkas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    calon_siswa_id INT NOT NULL,
+    jenis_berkas VARCHAR(50),
+    nama_file VARCHAR(255),
+    file_path VARCHAR(255),
+    status ENUM('valid','tidak_valid','belum_diperiksa') DEFAULT 'belum_diperiksa',
+    FOREIGN KEY (calon_siswa_id) REFERENCES calon_siswa(id) ON DELETE CASCADE
+);
+
+-- 5. TABEL INFORMASI
+CREATE TABLE informasi (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    judul VARCHAR(100),
+    konten TEXT,
+    file VARCHAR(255),
+    jenis ENUM('informasi','jadwal','persyaratan','lokasi','alur','profil')
+);
+
+-- 6. TABEL PENGUMUMAN
+CREATE TABLE pengumuman (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    judul VARCHAR(100),
+    isi TEXT,
+    file VARCHAR(255),
+    tampil_index ENUM('ya','tidak') DEFAULT 'ya'
+);
+
+
+-- Insert data awal untuk admin dan panitia (password: adm123)
+INSERT INTO users (nama, username, email, password, role) VALUES 
+('Admin Utama', 'admin', 'admin@ppsd.sch.id', 'adm123', 'admin'),
+('Panitia 1', 'panitia1', 'panitia1@ppsd.sch.id', 'pnt123', 'panitia');
+
+
+-- Insert tahun ajaran contoh
+INSERT INTO tahun_ajaran (tahun, kuota, status, tanggal_buka, tanggal_tutup) VALUES
+('2024/2025', 100, 'aktif', '2024-01-01', '2024-12-31'),
+('2025/2026', 120, 'nonaktif', '2025-01-01', '2025-12-31');
+
+-- Insert informasi contoh
+INSERT INTO informasi (judul, konten, jenis) VALUES
+('Jadwal Pendaftaran', 'Pendaftaran dibuka dari 1 Januari - 31 Desember 2024', 'jadwal'),
+('Persyaratan', '1. FC Ijazah TK\n2. FC Akta Kelahiran\n3. FC KK\n4. FC KTP Orang Tua', 'persyaratan'),
+('Lokasi Sekolah', 'Jl. Pendidikan No. 123, Kota Contoh', 'lokasi'),
+('Profil Sekolah', 'SD Negeri Contoh merupakan sekolah berakreditasi A', 'profil');

@@ -1,0 +1,184 @@
+-- Database: ppdb
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+CREATE DATABASE IF NOT EXISTS `ppdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `ppdb`;
+
+-- --------------------------------------------------------
+
+-- Struktur dari tabel `berkas`
+CREATE TABLE `berkas` (
+  `id` int(11) NOT NULL,
+  `calon_siswa_id` int(11) NOT NULL,
+  `jenis_berkas` varchar(50) NOT NULL,
+  `nama_file` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `status` enum('valid','tidak_valid','belum_diperiksa') DEFAULT 'belum_diperiksa',
+  `catatan` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Struktur dari tabel `calon_siswa`
+CREATE TABLE `calon_siswa` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `tahun_ajaran_id` int(11) NOT NULL,
+  `nomor_pendaftaran` varchar(20) NOT NULL,
+  `nama_siswa` varchar(100) NOT NULL,
+  `jenis_kelamin` enum('L','P') DEFAULT NULL,
+  `tempat_lahir` varchar(50) DEFAULT NULL,
+  `tanggal_lahir` date DEFAULT NULL,
+  `agama` enum('Islam','Kristen Protestan','Katolik','Hindu','Buddha','Khonghucu') DEFAULT NULL,
+  `kewarganegaraan` enum('WNI','WNA') DEFAULT 'WNI',
+  `anak_ke` int(11) DEFAULT NULL,
+  `jumlah_saudara` int(11) DEFAULT NULL,
+  `golongan_darah` varchar(3) DEFAULT NULL,
+  `riwayat_penyakit` text DEFAULT NULL,
+  `alamat` text DEFAULT NULL,
+  `nama_ayah` varchar(100) DEFAULT NULL,
+  `pekerjaan_ayah` varchar(50) DEFAULT NULL,
+  `penghasilan_ayah` varchar(50) DEFAULT NULL,
+  `hp_ayah` varchar(20) DEFAULT NULL,
+  `nama_ibu` varchar(100) DEFAULT NULL,
+  `pekerjaan_ibu` varchar(50) DEFAULT NULL,
+  `penghasilan_ibu` varchar(50) DEFAULT NULL,
+  `hp_ibu` varchar(20) DEFAULT NULL,
+  `nama_wali` varchar(100) DEFAULT NULL,
+  `hubungan_wali` varchar(50) DEFAULT NULL,
+  `hp_wali` varchar(20) DEFAULT NULL,
+  `nama_tk_asal` varchar(100) DEFAULT NULL,
+  `pindahan_dari` varchar(100) DEFAULT NULL,
+  `kelas_pindahan` varchar(50) DEFAULT NULL,
+  `status_terima` enum('pending','diterima','tidak_diterima') DEFAULT 'pending',
+  `catatan_panitia` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Struktur dari tabel `informasi`
+CREATE TABLE `informasi` (
+  `id` int(11) NOT NULL,
+  `judul` varchar(100) NOT NULL,
+  `konten` text NOT NULL,
+  `file` varchar(255) DEFAULT NULL,
+  `jenis` enum('informasi','jadwal','persyaratan','lokasi','alur','profil') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Struktur dari tabel `pengumuman`
+CREATE TABLE `pengumuman` (
+  `id` int(11) NOT NULL,
+  `judul` varchar(100) NOT NULL,
+  `isi` text NOT NULL,
+  `file` varchar(255) DEFAULT NULL,
+  `tampil_index` enum('ya','tidak') DEFAULT 'ya',
+  `allow_download` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Struktur dari tabel `tahun_ajaran`
+CREATE TABLE `tahun_ajaran` (
+  `id` int(11) NOT NULL,
+  `tahun` varchar(20) NOT NULL,
+  `kuota` int(11) DEFAULT 0,
+  `status` enum('aktif','nonaktif') DEFAULT 'nonaktif',
+  `tanggal_buka` date DEFAULT NULL,
+  `tanggal_tutup` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Struktur dari tabel `users`
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `nama` varchar(100) DEFAULT NULL,
+  `username` varchar(50) NOT NULL,
+  `no_hp` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','panitia','pendaftar') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data untuk tabel `users`
+INSERT INTO `users` (`id`, `nama`, `username`, `no_hp`, `email`, `password`, `role`, `created_at`) VALUES
+(1, 'Admin Utama', 'admin', '081234567890', 'admin@ppsd.sch.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '2024-01-01 00:00:00'),
+(2, 'Panitia 1', 'panitia1', '081234567891', 'panitia1@ppsd.sch.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'panitia', '2024-01-01 00:00:00');
+
+-- Dumping data untuk tabel `tahun_ajaran`
+INSERT INTO `tahun_ajaran` (`id`, `tahun`, `kuota`, `status`, `tanggal_buka`, `tanggal_tutup`) VALUES
+(1, '2024/2025', 100, 'aktif', '2024-01-01', '2024-12-31'),
+(2, '2025/2026', 120, 'nonaktif', '2025-01-01', '2025-12-31');
+
+-- Dumping data untuk tabel `informasi`
+INSERT INTO `informasi` (`id`, `judul`, `konten`, `file`, `jenis`, `created_at`) VALUES
+(1, 'Jadwal Pendaftaran', 'Pendaftaran dibuka dari 1 Januari - 31 Desember 2024', NULL, 'jadwal', '2024-01-01 00:00:00'),
+(2, 'Persyaratan', '1. FC Ijazah TK\n2. FC Akta Kelahiran\n3. FC KK\n4. FC KTP Orang Tua', NULL, 'persyaratan', '2024-01-01 00:00:00'),
+(3, 'Lokasi Sekolah', 'Jl. Pendidikan No. 123, Kota Contoh', NULL, 'lokasi', '2024-01-01 00:00:00'),
+(4, 'Profil Sekolah', 'SD Negeri Contoh merupakan sekolah berakreditasi A', NULL, 'profil', '2024-01-01 00:00:00');
+
+-- Indexes
+ALTER TABLE `berkas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `calon_siswa_id` (`calon_siswa_id`);
+
+ALTER TABLE `calon_siswa`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nomor_pendaftaran` (`nomor_pendaftaran`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `tahun_ajaran_id` (`tahun_ajaran_id`);
+
+ALTER TABLE `informasi`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `pengumuman`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `tahun_ajaran`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `tahun` (`tahun`);
+
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
+
+-- AUTO_INCREMENT
+ALTER TABLE `berkas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `calon_siswa`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `informasi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+ALTER TABLE `pengumuman`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `tahun_ajaran`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+-- Constraints
+ALTER TABLE `berkas`
+  ADD CONSTRAINT `berkas_ibfk_1` FOREIGN KEY (`calon_siswa_id`) REFERENCES `calon_siswa` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `calon_siswa`
+  ADD CONSTRAINT `calon_siswa_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `calon_siswa_ibfk_2` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `tahun_ajaran` (`id`);
+COMMIT;
